@@ -5,13 +5,16 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.ReadChannel;
 import com.google.cloud.storage.*;
 import com.google.common.collect.Lists;
+import com.ksr.Action;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Map;
 
-public class GetBucketMetadata {
+public class GetBucketMetadata implements Action {
     public static void getBucketMetadata(String projectId, String bucketName) {
         // The ID of your GCP project
         // String projectId = "your-project-id";
@@ -88,11 +91,16 @@ public class GetBucketMetadata {
     }
 
     public static void main(String args[]) throws IOException {
-        String projectId = "kapilsreed12-1dataflow";
-        String bucketName = "charlotte-kapil-wedding-photos";
+        Config conf = ConfigFactory.load();
+        String projectId = conf.getString("gcs.projectId");
+        String bucketName = conf.getString("gcs.bucketName");
        // GetBucketMetadata.authExplicit("C:\\projects\\bdaa-dl2x-dev-sc-be0su7ip-bb6f7a8d6637.json");
         GetBucketMetadata.getBucketMetadata(projectId, bucketName);
 
     }
 
+    @Override
+    public void execute(Config config ) {
+        GetBucketMetadata.getBucketMetadata(config.getString("gcs.projectId"), config.getString("gcs.bucketName"));
+    }
 }

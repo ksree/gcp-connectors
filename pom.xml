@@ -9,7 +9,10 @@
     <version>1.0-SNAPSHOT</version>
     <properties>
         <google-cloud-storage-version>1.113.1</google-cloud-storage-version>
+        <google-cloud-bigquery>1.124.2</google-cloud-bigquery>
         <avro.version>1.10.0</avro.version>
+        <junit.version>4.13.1</junit.version>
+        <typesafe.config.version>1.4.0</typesafe.config.version>
     </properties>
     <dependencies>
         <dependency>
@@ -18,9 +21,24 @@
             <version>${google-cloud-storage-version}</version>
         </dependency>
         <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>google-cloud-bigquery</artifactId>
+            <version>${google-cloud-bigquery}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.avro</groupId>
             <artifactId>avro</artifactId>
             <version>${avro.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.typesafe</groupId>
+            <artifactId>config</artifactId>
+            <version>${typesafe.config.version}</version>
         </dependency>
     </dependencies>
 
