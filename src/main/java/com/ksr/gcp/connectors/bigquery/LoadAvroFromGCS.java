@@ -5,11 +5,12 @@ import com.ksr.Action;
 import com.typesafe.config.Config;
 
 public class LoadAvroFromGCS implements Action {
+
     public static void runLoadAvroFromGCS(Config config) {
-        // TODO(developer): Replace these variables before running the sample.
+
         String datasetName = config.getString("bigquery.datasetName");
-        String tableName =  config.getString("bigquery.tableName");
-        String sourceUri =  config.getString("bigquery.sourceUri");
+        String tableName = config.getString("bigquery.tableName");
+        String sourceUri = config.getString("bigquery.sourceUri");
         loadAvroFromGCS(datasetName, tableName, sourceUri);
     }
 
@@ -41,6 +42,6 @@ public class LoadAvroFromGCS implements Action {
 
     @Override
     public void execute(Config conf) {
-        
+        LoadAvroFromGCS.runLoadAvroFromGCS(conf);
     }
 }

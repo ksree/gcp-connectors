@@ -4,7 +4,7 @@ import com.google.cloud.bigquery.*;
 import com.ksr.Action;
 import com.typesafe.config.Config;
 
-public class CreateTable implements Action {
+public class CreateBQTable implements Action {
 
     public static void runCreateTable() {
         // TODO(developer): Replace these variables before running the sample.

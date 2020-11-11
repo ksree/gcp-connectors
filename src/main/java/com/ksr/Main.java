@@ -1,6 +1,7 @@
 package com.ksr;
 
-import com.ksr.gcp.connectors.bigquery.CreateDataset;
+import com.ksr.gcp.connectors.bigquery.CreateBQDataset;
+import com.ksr.gcp.connectors.bigquery.LoadAvroFromGCS;
 import com.ksr.gcp.connectors.bucket.CreateStorageBucket;
 import com.ksr.gcp.connectors.bucket.GetBucketMetadata;
 import com.ksr.gcp.connectors.bucket.UploadObject;
@@ -21,7 +22,8 @@ public class Main {
         actions.put("CreateGCSBucket", new CreateStorageBucket());
         actions.put("GetBucketMetadata", new GetBucketMetadata());
         actions.put("UploadObject", new UploadObject());
-        actions.put("CreateDataset", new CreateDataset());
+        actions.put("CreateBQDataset", new CreateBQDataset());
+        actions.put("LoadAvroFromGCS", new LoadAvroFromGCS());
 
         String inputAction = "";
         if (args.length > 0) {

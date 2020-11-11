@@ -8,7 +8,7 @@ import com.google.cloud.bigquery.Dataset;
 import com.google.cloud.bigquery.DatasetInfo;
 import com.typesafe.config.Config;
 
-public class CreateDataset implements Action {
+public class CreateBQDataset implements Action {
 
     public static void createDataset(String datasetName) {
         try {
@@ -26,6 +26,6 @@ public class CreateDataset implements Action {
 
     @Override
     public void execute(Config config) {
-        CreateDataset.createDataset(config.getString("bigquery.datasetname"));
+        CreateBQDataset.createDataset(config.getString("bigquery.datasetName"));
     }
 }
