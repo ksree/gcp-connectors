@@ -22,7 +22,7 @@ public class DataGen {
 
     }
 
-    protected byte[] serializeImpl(String subject, Object object, AvroSchema schema) throws SerializationException, IOException {
+    protected byte[] serializeImpl(String subject, Object object, AvroSchema schema) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Encoder encoder = EncoderFactory.get().binaryEncoder(outputStream, null);
         DatumWriter<OMSmsgFields> writer = new SpecificDatumWriter<OMSmsgFields>(OMSmsgFields.class);
