@@ -1,7 +1,7 @@
 {
  "type" : "record",
  "doc" : "This OMS message includes all ORK fields needed for PTR. Use the builder to produce the object and set defaults like schema name and version.",
- "namespace" : "com.commerzbank.bdmf.ptr.fields100",
+ "namespace" : "com.ksr.bdmf.ptr.fields100",
  "name" : "OMSmsgFields",
  "fields" : [
   { "name" : "schema_name",                  "type" : "string",                                                                     "default" : "OMSmsgFields", "doc" : "Displays the avro schema name used. PTR-001"},
