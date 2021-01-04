@@ -25,5 +25,7 @@ public class PublishMessageTest {
     @Test
     public void publish() throws IOException, InterruptedException {
         publishMessage.publish(dataGen.getSerializedRecord());
+        publishMessage.publish(dataGen.getSerializedRecord());
+        publishMessage.publish(dataGen.getSerializedRecord());
     }
 }

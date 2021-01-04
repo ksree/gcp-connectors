@@ -8,15 +8,9 @@ import com.google.pubsub.v1.PubsubMessage;
 import com.ksr.bdmf.ptr.fields100.OMSmsgFields;
 import com.ksr.util.Util;
 import com.typesafe.config.Config;
-import io.grpc.netty.shaded.io.netty.handler.codec.http.multipart.FileUpload;
 import org.apache.avro.Schema;
 import org.apache.avro.data.TimeConversions;
-import org.apache.avro.file.DataFileReader;
 import org.apache.avro.file.DataFileWriter;
-import org.apache.avro.file.SeekableByteArrayInput;
-import org.apache.avro.file.SeekableInput;
-import org.apache.avro.generic.GenericData;
-import org.apache.avro.generic.GenericDatumReader;
 import org.apache.avro.generic.GenericDatumWriter;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.DatumReader;
@@ -39,6 +33,7 @@ public class SubscribeAsync {
     String topicId;
     String subscriptionId;
     Schema schema;
+    String outputPath;
 
     private static void serialize(final Schema schema, final GenericRecord... users) throws IOException {
         // Serialize users to disk
@@ -50,10 +45,12 @@ public class SubscribeAsync {
             }
         }
     }
+
     public SubscribeAsync(Config config) throws IOException {
         this.projectId = config.getString("pubsub.projectId");
         this.topicId = config.getString("pubsub.topicId");
         this.subscriptionId = config.getString("pubsub.subscriptionId");
+        this.outputPath = config.getString("pubsub.outputPath");
         //String schema = config.getString("pubsub.avroSchema");
         try {
             File schemaFile = new Util().getFileFromResource(config.getString("pubsub.avroSchema"));
@@ -67,7 +64,7 @@ public class SubscribeAsync {
 
     }
 
-    public  void writeToAvro() {
+    public void writeToAvro() {
         ProjectSubscriptionName subscriptionName =
                 ProjectSubscriptionName.of(projectId, subscriptionId);
         OMSmsgFields omSmsgFields = new OMSmsgFields();
@@ -86,7 +83,7 @@ public class SubscribeAsync {
                         DatumWriter<SpecificRecord> datumWriter = new SpecificDatumWriter<>(omSmsgFields.getSchema(), specificData);
 
                         DataFileWriter<SpecificRecord> dataWriter = new DataFileWriter<>(datumWriter);
-                        File avroDataFile = new File("target/generated-sources/employee_nongen.avro");
+                        File avroDataFile = new File(outputPath + message.getMessageId() + ".avsc");
 
                         dataWriter.create(omSmsgFields.getSchema(), avroDataFile);
 
