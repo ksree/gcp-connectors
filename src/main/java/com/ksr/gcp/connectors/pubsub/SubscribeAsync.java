@@ -82,35 +82,22 @@ public class SubscribeAsync {
                     System.out.println("Received message Id: " + message.getMessageId());
                     Decoder decoder = DecoderFactory.get().binaryDecoder(message.getData().toByteArray(), null);
                     try {
-                        String out = datumReader.read(null, decoder).toString();
-                        DatumWriter<SpecificRecord> datumWriter = new SpecificDatumWriter<>(schema, specificData);
 
-                        DataFileWriter<SpecificRecord> dataWriter = new DataFileWriter<SpecificRecord>(datumWriter);
+                        DatumWriter<SpecificRecord> datumWriter = new SpecificDatumWriter<>(omSmsgFields.getSchema(), specificData);
+
+                        DataFileWriter<SpecificRecord> dataWriter = new DataFileWriter<>(datumWriter);
                         File avroDataFile = new File("target/generated-sources/employee_nongen.avro");
 
-                        dataWriter.create(schema, avroDataFile);
+                        dataWriter.create(omSmsgFields.getSchema(), avroDataFile);
 
                         dataWriter.append(datumReader.read(null, decoder));
                         dataWriter.flush();
                         dataWriter.close();
-                        /*DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<GenericRecord>(omSmsgFields.getSchema());
-                        DataFileWriter<GenericRecord> writer = new DataFileWriter<GenericRecord>(datumWriter);
-                        File avroDataFile = new File("target/generated-sources/employee_nongen.avro");
-
-                        writer.create(schema, avroDataFile);
-                        while(genericRecords.hasNext()){
-                            writer.append(genericRecords.next());
-                        }
-                        writer.flush();
-                        writer.close();*/
-                        System.out.println(out);
                     } catch (IOException e) {
                         System.out.println("Failed to parse Avro message + Id: " + message.getMessageId());
                         e.printStackTrace();
-                        consumer.ack();
 
                     }
-
                     consumer.ack();
                 };
 
