@@ -29,11 +29,11 @@ public class DataGen {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Encoder encoder = EncoderFactory.get().binaryEncoder(outputStream, null);
         OMSmsgFields omSmsgFieldsData = getOmSMSgObject();
+        //For handling logical types
         final SpecificData specificData = new SpecificData();
         specificData.addLogicalTypeConversion(new TimeConversions.TimestampMicrosConversion());
         DatumWriter<SpecificRecord> writer = new SpecificDatumWriter<>(omSmsgFieldsData.getSchema(), specificData);
-        for(int i =0; i <= 1400; i ++)
-            writer.write(getOmSMSgObject(), encoder);
+        writer.write(getOmSMSgObject(), encoder);
 
         encoder.flush();
         return outputStream.toByteArray();

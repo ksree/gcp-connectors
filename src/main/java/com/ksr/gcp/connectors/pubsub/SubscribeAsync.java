@@ -5,10 +5,12 @@ import com.google.cloud.pubsub.v1.MessageReceiver;
 import com.google.cloud.pubsub.v1.Subscriber;
 import com.google.pubsub.v1.ProjectSubscriptionName;
 import com.google.pubsub.v1.PubsubMessage;
+import com.ksr.bdmf.ptr.fields100.OMSmsgFields;
 import com.ksr.util.Util;
 import com.typesafe.config.Config;
 import io.grpc.netty.shaded.io.netty.handler.codec.http.multipart.FileUpload;
 import org.apache.avro.Schema;
+import org.apache.avro.data.TimeConversions;
 import org.apache.avro.file.DataFileReader;
 import org.apache.avro.file.DataFileWriter;
 import org.apache.avro.file.SeekableByteArrayInput;
@@ -19,6 +21,12 @@ import org.apache.avro.generic.GenericDatumWriter;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.DatumReader;
 import org.apache.avro.io.DatumWriter;
+import org.apache.avro.io.Decoder;
+import org.apache.avro.io.DecoderFactory;
+import org.apache.avro.specific.SpecificData;
+import org.apache.avro.specific.SpecificDatumReader;
+import org.apache.avro.specific.SpecificDatumWriter;
+import org.apache.avro.specific.SpecificRecord;
 
 import java.io.File;
 import java.io.IOException;
@@ -62,19 +70,30 @@ public class SubscribeAsync {
     public  void writeToAvro() {
         ProjectSubscriptionName subscriptionName =
                 ProjectSubscriptionName.of(projectId, subscriptionId);
-        DatumReader<GenericData.Record> datumReader = new GenericDatumReader<>(schema);
-
+        OMSmsgFields omSmsgFields = new OMSmsgFields();
+        //For handling logical types
+        final SpecificData specificData = new SpecificData();
+        specificData.addLogicalTypeConversion(new TimeConversions.TimestampMicrosConversion());
+        DatumReader<SpecificRecord> datumReader = new SpecificDatumReader<>(omSmsgFields.getSchema(), omSmsgFields.getSchema(), specificData);
         // Instantiate an asynchronous message receiver.
         MessageReceiver receiver =
                 (PubsubMessage message, AckReplyConsumer consumer) -> {
                     // Handle incoming message, then ack the received message.
                     System.out.println("Received message Id: " + message.getMessageId());
-                    SeekableInput data = new SeekableByteArrayInput(message.getData().toByteArray());
-
+                    Decoder decoder = DecoderFactory.get().binaryDecoder(message.getData().toByteArray(), null);
                     try {
-                        DataFileReader<GenericData.Record> genericRecords = new DataFileReader<>(data, datumReader);
+                        String out = datumReader.read(null, decoder).toString();
+                        DatumWriter<SpecificRecord> datumWriter = new SpecificDatumWriter<>(schema, specificData);
 
-                        DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<GenericRecord>(schema);
+                        DataFileWriter<SpecificRecord> dataWriter = new DataFileWriter<SpecificRecord>(datumWriter);
+                        File avroDataFile = new File("target/generated-sources/employee_nongen.avro");
+
+                        dataWriter.create(schema, avroDataFile);
+
+                        dataWriter.append(datumReader.read(null, decoder));
+                        dataWriter.flush();
+                        dataWriter.close();
+                        /*DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<GenericRecord>(omSmsgFields.getSchema());
                         DataFileWriter<GenericRecord> writer = new DataFileWriter<GenericRecord>(datumWriter);
                         File avroDataFile = new File("target/generated-sources/employee_nongen.avro");
 
@@ -83,10 +102,13 @@ public class SubscribeAsync {
                             writer.append(genericRecords.next());
                         }
                         writer.flush();
-                        writer.close();
+                        writer.close();*/
+                        System.out.println(out);
                     } catch (IOException e) {
                         System.out.println("Failed to parse Avro message + Id: " + message.getMessageId());
                         e.printStackTrace();
+                        consumer.ack();
+
                     }
 
                     consumer.ack();
