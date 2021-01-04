@@ -5,6 +5,7 @@ import com.google.cloud.pubsub.v1.MessageReceiver;
 import com.google.cloud.pubsub.v1.Subscriber;
 import com.google.pubsub.v1.ProjectSubscriptionName;
 import com.google.pubsub.v1.PubsubMessage;
+import com.ksr.util.Util;
 import com.typesafe.config.Config;
 import io.grpc.netty.shaded.io.netty.handler.codec.http.multipart.FileUpload;
 import org.apache.avro.Schema;
@@ -21,6 +22,7 @@ import org.apache.avro.io.DatumWriter;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -45,22 +47,19 @@ public class SubscribeAsync {
         this.topicId = config.getString("pubsub.topicId");
         this.subscriptionId = config.getString("pubsub.subscriptionId");
         //String schema = config.getString("pubsub.avroSchema");
-        File schemaFile;
-        if(config.getString("pubsub.avroSchema").trim().isEmpty()){
-            schemaFile = new File("lz_ork.avsc");
-        } else {
-            schemaFile = new File(config.getString("pubsub.avroSchema"));
-        }
         try {
+            File schemaFile = new Util().getFileFromResource(config.getString("pubsub.avroSchema"));
             schema = new Schema.Parser().parse(schemaFile);
         } catch (IOException e) {
             e.printStackTrace();
             throw e;
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
         }
 
     }
 
-    public  void subscribeAsync() {
+    public  void writeToAvro() {
         ProjectSubscriptionName subscriptionName =
                 ProjectSubscriptionName.of(projectId, subscriptionId);
         DatumReader<GenericData.Record> datumReader = new GenericDatumReader<>(schema);
