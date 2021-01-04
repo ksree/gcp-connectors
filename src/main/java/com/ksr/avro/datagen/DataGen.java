@@ -2,11 +2,14 @@ package com.ksr.avro.datagen;
 
 import com.ksr.bdmf.ptr.fields100.*;
 import com.ksr.bdmf.ptr.fields100.OMSmsgFields;
+import org.apache.avro.data.TimeConversions;
 import org.apache.avro.io.DatumWriter;
 import org.apache.avro.io.Encoder;
 import org.apache.avro.io.EncoderFactory;
 import org.apache.avro.reflect.AvroSchema;
+import org.apache.avro.specific.SpecificData;
 import org.apache.avro.specific.SpecificDatumWriter;
+import org.apache.avro.specific.SpecificRecord;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -22,12 +25,16 @@ public class DataGen {
 
     }
 
-    protected byte[] serializeImpl(String subject, Object object, AvroSchema schema) throws IOException {
+    public byte[] getSerializedRecord() throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Encoder encoder = EncoderFactory.get().binaryEncoder(outputStream, null);
-        DatumWriter<OMSmsgFields> writer = new SpecificDatumWriter<OMSmsgFields>(OMSmsgFields.class);
-        OMSmsgFields omSmsgFields = getOmSMSgObject();
-        writer.write(omSmsgFields, encoder);
+        OMSmsgFields omSmsgFieldsData = getOmSMSgObject();
+        final SpecificData specificData = new SpecificData();
+        specificData.addLogicalTypeConversion(new TimeConversions.TimestampMicrosConversion());
+        DatumWriter<SpecificRecord> writer = new SpecificDatumWriter<>(omSmsgFieldsData.getSchema(), specificData);
+        for(int i =0; i <= 1400; i ++)
+            writer.write(getOmSMSgObject(), encoder);
+
         encoder.flush();
         return outputStream.toByteArray();
     }
@@ -133,5 +140,4 @@ public class DataGen {
         omSmsgFields.setSHORTCODEEDM("SHORTCODE_EDM");
         return omSmsgFields;
     }
-
 }
